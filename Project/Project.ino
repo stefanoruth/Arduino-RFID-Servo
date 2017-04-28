@@ -12,6 +12,11 @@ byte block = 1;
 
 Servo servo1;
 Servo servo2;
+uint8_t pushStart = 130;
+uint8_t pushEnd = 45;
+uint8_t trash1 = 60;
+uint8_t trash2 = 100;
+uint8_t trash3 = 135;
 
 void setup() {
 	Serial.begin(9600);
@@ -20,20 +25,14 @@ void setup() {
 	mfrc522.PCD_Init();
 	servo1.attach(5);  // Attach the servo on pin 9
 	servo2.attach(11); // Attach the servo on pin 10
-	//motor2(20);
+	servo1.write(trash2);
+	servo2.write(pushStart);
 	Serial.println(F("Ready"));
 }
 
 void loop() {
-	motor1(130);
-
-	delay(1000);
-
-	motor1(60);
-	delay(1000);
-
 	// Reset card info
-	/*for (byte i = 0; i < 6; i++) key.keyByte[i] = 0xFF;
+	for (byte i = 0; i < 6; i++) key.keyByte[i] = 0xFF;
 
 	// Look for new cards
 	if (!mfrc522.PICC_IsNewCardPresent()) {
@@ -49,45 +48,36 @@ void loop() {
 	cardAuthenticate();
 	String data = cardRead();
 	Serial.println(data);
+	Serial.println("Ramp");
 	moveRamp(data);
+	Serial.println("Push");
 	pushTag();
-	Serial.print("Next");
+	Serial.println("Next");
 
 	Serial.println();
 	mfrc522.PICC_HaltA(); // Halt PICC
-	mfrc522.PCD_StopCrypto1();  // Stop encryption on PCD*/
+	mfrc522.PCD_StopCrypto1();  // Stop encryption on PCD
 }
 
 void moveRamp(String container) {
 	if(container == "Papir") {
-		motor1(10);
+		servo1.write(trash1);
 	} else if (container == "Metal") {
-		motor1(90);
+		servo1.write(trash2);
 	} else if (container == "Glas") {
-		motor1(170);
+		servo1.write(trash3);
 	} else {
 		Serial.print("Undefined container: ");
 		Serial.println(container);
 	}
+	delay(1000);
 }
 
 void pushTag() {
-	motor2(160);
-	delay(2000);
-	motor2(20);
-	delay(2000);
-}
-
-// Move servo1 to a specefik position
-void motor1(int pos) {
-	servo1.write(pos);
-	delay(5000); 
-}
-
-// Move servo2 to a specefik position
-void motor2(int pos) {
-	servo2.write(pos);
-	delay(5000); 
+	servo2.write(pushEnd);
+	delay(1000);
+	servo2.write(pushStart);
+	delay(1000);
 }
 
 // Authenticate a card
